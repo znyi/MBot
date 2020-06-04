@@ -25,18 +25,6 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.1stleg/jnativehook -->
-	<dependency>
-	  <groupId>com.1stleg</groupId>
-	  <artifactId>jnativehook</artifactId>
-	  <version>2.1.0</version>
-	</dependency>
-	<!-- https://github.com/atarw/material-ui-swing -->
-    <dependency>
- 	  <groupId>io.github.vincenzopalazzo</groupId>
- 	  <artifactId>material-ui-swing</artifactId>
- 	  <version>1.1.1_pre-release_6.1</version>
-	</dependency>
   </dependencies>
 
   <build>
