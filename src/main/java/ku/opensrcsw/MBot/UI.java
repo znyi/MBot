@@ -10,6 +10,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -26,13 +31,12 @@ import javax.swing.event.ChangeListener;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.dispatcher.SwingDispatchService;
-import org.jnativehook.keyboard.NativeKeyEvent;
-import org.jnativehook.keyboard.NativeKeyListener;
-import org.jnativehook.mouse.NativeMouseEvent;
-import org.jnativehook.mouse.NativeMouseMotionListener;
 
 public class UI extends JFrame {
 
+	String filename;
+	String filepath;
+	
 	Container con;
 	Dimension size = new Dimension(900, 600);
 	JPanel titleBar = new JPanel();
@@ -60,6 +64,9 @@ public class UI extends JFrame {
 	
 	public UI() {
 		super();
+		filename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+		filepath = "src/main/resources/" + filename + ".txt";
+		GlobalScreen.setEventDispatcher(new SwingDispatchService());
 		this.initUI();
 	}
 	
@@ -102,22 +109,15 @@ public class UI extends JFrame {
 	}
 	
 	private void initListener() {
-		GlobalScreen.addNativeMouseListener(new NativeMouseListener(this));
-		GlobalScreen.addNativeKeyListener(new NativeKeyboardListener(this));
-		GlobalScreen.addNativeMouseWheelListener(new NativeWheelListener(this));
-		GlobalScreen.addNativeMouseMotionListener(new NativeMouseMotionListener() {
-
-			@Override
-			public void nativeMouseMoved(NativeMouseEvent e) {
-				
-			}
-
-			@Override
-			public void nativeMouseDragged(NativeMouseEvent e) {
-				
-			}
-			
-		});
+		NativeMouseListener mouseListener = new NativeMouseListener(this, filepath);
+		NativeKeyboardListener keyboardListener = new NativeKeyboardListener(this, filepath);
+		NativeWheelListener wheelListener = new NativeWheelListener(this, filepath);
+		
+		GlobalScreen.addNativeMouseListener(mouseListener);
+		GlobalScreen.addNativeMouseMotionListener(mouseListener);
+		GlobalScreen.addNativeKeyListener(keyboardListener);
+		GlobalScreen.addNativeMouseWheelListener(wheelListener);
+		
 		recBtn.addActionListener(new ActionListener() {
 
 			@Override
@@ -127,7 +127,20 @@ public class UI extends JFrame {
 					recBtn.setText(endRec);
 					playBtn.setEnabled(false);
 					stopBtn.setEnabled(false);
+					//filename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+					filename = "output";
+					filepath = "src/main/resources/" + filename + ".txt";
+					File file = new File(filepath);
 					try {
+						boolean result = Files.deleteIfExists(file.toPath());
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					try {
+						NativeMouseListener.path = filepath;
+						NativeKeyboardListener.path = filepath;
+						NativeWheelListener.path = filepath;
 						GlobalScreen.registerNativeHook();
 					} catch (NativeHookException nhe) {
 						nhe.printStackTrace();
