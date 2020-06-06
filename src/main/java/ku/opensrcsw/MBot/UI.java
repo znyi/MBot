@@ -36,6 +36,7 @@ public class UI extends JFrame {
 
 	String filename;
 	String filepath;
+	EventPlayer player;
 	
 	Container con;
 	Dimension size = new Dimension(900, 600);
@@ -48,6 +49,7 @@ public class UI extends JFrame {
 	JLabel playing = new JLabel("Playing...");
 	boolean isRec = false;
 	boolean isPlay = false;
+	boolean isStop = true;
 
 	String startRec = "Start Recording";
 	String endRec = "End Recording";
@@ -168,6 +170,9 @@ public class UI extends JFrame {
 					playBtn.setText(pause);
 					stopBtn.setEnabled(true);
 					recBtn.setEnabled(false);
+					isStop = false;
+					player = new EventPlayer(filepath);
+					player.play(isPlay, isEndless, (Integer)numSpinner.getValue(), isStop);
 				} else {
 					playBtn.setText(play);
 					stopBtn.setEnabled(true);
@@ -182,6 +187,7 @@ public class UI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				isPlay = !isPlay;
+				isStop = true;
 				playBtn.setText(play);
 				stopBtn.setEnabled(false);
 				recBtn.setEnabled(true);
