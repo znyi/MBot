@@ -12,24 +12,22 @@ import org.jnativehook.mouse.NativeMouseMotionListener;
 public class NativeMouseListener implements NativeMouseInputListener, NativeMouseMotionListener {
 
 	UI frame;
-	static String path;
 	
-	public NativeMouseListener(UI frame, String filepath) {
+	public NativeMouseListener(UI frame) {
 		this.frame = frame;
-		NativeMouseListener.path = filepath;
 	}
 	
 	@Override
 	public void nativeMouseClicked(NativeMouseEvent e) {
-		
+
 	}
 
 	@Override
 	public void nativeMousePressed(NativeMouseEvent e) {
 		BufferedWriter out;
 		try {
-			out = new BufferedWriter(new FileWriter(path, true));
-			out.write("mouse press "+e.getButton()+" "+e.getX()+" "+e.getY()+"\n");
+			out = new BufferedWriter(new FileWriter(frame.filepath, true));
+			out.write("mouse press "+e.getButton()+"\n");
 			out.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -40,8 +38,8 @@ public class NativeMouseListener implements NativeMouseInputListener, NativeMous
 	public void nativeMouseReleased(NativeMouseEvent e) {
 		BufferedWriter out;
 		try {
-			out = new BufferedWriter(new FileWriter(path, true));
-			out.write("mouse release "+e.getButton()+" "+e.getX()+" "+e.getY()+"\n");
+			out = new BufferedWriter(new FileWriter(frame.filepath, true));
+			out.write("mouse release "+e.getButton()+"\n");
 			out.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -52,8 +50,8 @@ public class NativeMouseListener implements NativeMouseInputListener, NativeMous
 	public void nativeMouseMoved(NativeMouseEvent e) {
 		BufferedWriter out;
 		try {
-			out = new BufferedWriter(new FileWriter(path, true));
-			out.write("move " + MouseInfo.getPointerInfo().getLocation().x + " " + MouseInfo.getPointerInfo().getLocation().x+"\n");
+			out = new BufferedWriter(new FileWriter(frame.filepath, true));
+			out.write("move " + MouseInfo.getPointerInfo().getLocation().x + " " + MouseInfo.getPointerInfo().getLocation().y+"\n");
 			out.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();

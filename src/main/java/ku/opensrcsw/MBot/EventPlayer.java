@@ -1,7 +1,6 @@
 package ku.opensrcsw.MBot;
 
 import java.awt.AWTException;
-import java.awt.MouseInfo;
 import java.awt.Robot;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -16,14 +15,15 @@ public class EventPlayer implements Runnable {
 	String path;
 	Robot bot;
 	Integer repetition;
+	static Integer count;
 	
 	public EventPlayer(UI frame, String path) {
 		this.frame = frame;
 		this.path = path;
 	}
 	
-	public void play(Integer num) {
-		repetition = num;
+	public void play() {
+		repetition = (Integer)frame.numSpinner.getValue();
 		Thread t = new Thread(this);
 		t.start();
 		//this.run();
@@ -33,11 +33,11 @@ public class EventPlayer implements Runnable {
 	public void run() {
 		try {
 			bot = new Robot();
-			bot.setAutoDelay(50);
+			bot.setAutoDelay(20);
 			bot.setAutoWaitForIdle(true);
 			if(frame.isEndless) repetition = 1;
 			for(int i = 0; i < repetition; i++) {
-				//BufferedReader reader = Files.newBufferedReader(Paths.get(path));
+				System.out.println("starting loop "+i);
 				BufferedReader reader;
 				do {
 					try {
@@ -82,9 +82,9 @@ public class EventPlayer implements Runnable {
 				            	case "move":
 				            	{
 				            		int x = Integer.parseInt(command[1]);
-				            		System.out.print(MouseInfo.getPointerInfo().getLocation().x+" ");
+				            		//System.out.print(MouseInfo.getPointerInfo().getLocation().x+" ");
 				            		int y = Integer.parseInt(command[2]);
-				            		System.out.println(MouseInfo.getPointerInfo().getLocation().y);
+				            		//System.out.println(MouseInfo.getPointerInfo().getLocation().y);
 				            		bot.mouseMove(x, y);
 				            		break;
 				            	}
@@ -102,6 +102,7 @@ public class EventPlayer implements Runnable {
 					}
 					
 				} while(frame.isEndless);
+				System.out.println("ending loop "+i);
 			}
 			frame.isStop = true;
 			frame.isPlay = false;

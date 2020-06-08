@@ -77,8 +77,6 @@ public class UI extends JFrame implements WindowListener{
 	
 	public UI() {
 		super();
-		//filename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-		//filepath = "src/main/resources/" + filename + ".txt";
 		GlobalScreen.setEventDispatcher(new SwingDispatchService());
 		this.initUI();
 	}
@@ -123,9 +121,9 @@ public class UI extends JFrame implements WindowListener{
 	}
 	
 	private void initListener() {
-		mouseListener = new NativeMouseListener(this, filepath);
-		keyboardListener = new NativeKeyboardListener(this, filepath);
-		wheelListener = new NativeWheelListener(this, filepath);
+		mouseListener = new NativeMouseListener(this);
+		keyboardListener = new NativeKeyboardListener(this);
+		wheelListener = new NativeWheelListener(this);
 		
 		outerKeyListener = new NativeKeyListener() {
 
@@ -135,18 +133,14 @@ public class UI extends JFrame implements WindowListener{
 
 			@Override
 			public void nativeKeyPressed(NativeKeyEvent e) {
-				if(e.getKeyCode() == NativeKeyEvent.VC_F1) {
-					//start recording
+				if(e.getKeyCode() == NativeKeyEvent.VC_F1) { //start recording
 					isRec = true;
 					recBtn.setText(endRec);
 					playBtn.setEnabled(false);
 					stopBtn.setEnabled(false);
 					
-					//filename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-					/* needed if saving new file is done
-					filename = "output";
-					filepath = "src/main/resources/" + frame.filename + ".txt";
-					*/
+					//as a reference in case we want to save file using current date and time
+					//filename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")); 
 					
 					File file = new File(filepath);
 					try {
@@ -156,24 +150,20 @@ public class UI extends JFrame implements WindowListener{
 						} else {
 							GlobalScreen.registerNativeHook();
 						}
+						//change native listeners for recording
 						GlobalScreen.addNativeMouseListener(mouseListener);
 						GlobalScreen.addNativeMouseMotionListener(mouseListener);
 						GlobalScreen.addNativeKeyListener(keyboardListener);
 						GlobalScreen.addNativeMouseWheelListener(wheelListener);
 						
 						//output is generated through appending repeatedly until closing of file 
-						//need to delete existing output file to make it appears like the program is overwriting the output file
+						//need to delete existing output file to make it appear like the program is overwriting the output file
+						
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					} catch (NativeHookException e1) {
 						e1.printStackTrace();
 					}
-					
-					/* needed if saving new file is done
-					NativeMouseListener.path = filepath;
-					NativeKeyboardListener.path = filepath;
-					NativeWheelListener.path = filepath;
-					*/
 					
 				} else if (e.getKeyCode() == NativeKeyEvent.VC_F3) { //start playing
 					player = new EventPlayer(UI.this,filepath);
@@ -182,7 +172,7 @@ public class UI extends JFrame implements WindowListener{
 					stopBtn.setEnabled(true);    
 					recBtn.setEnabled(false);    
 					isStop = false;              
-					player.play((Integer)numSpinner.getValue());
+					player.play();
 				} else if (e.getKeyCode() == NativeKeyEvent.VC_F4) { //pause
 					isPlay = false;
 					playBtn.setText(play);
@@ -271,12 +261,10 @@ public class UI extends JFrame implements WindowListener{
 
 	@Override
 	public void windowActivated(WindowEvent e) {
-		
 	}
 
 	@Override
 	public void windowClosed(WindowEvent e) {
-		
 	}
 
 	@Override
@@ -294,22 +282,18 @@ public class UI extends JFrame implements WindowListener{
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {
-		
 	}
 
 	@Override
 	public void windowDeiconified(WindowEvent e) {
-		
 	}
 
 	@Override
 	public void windowIconified(WindowEvent e) {
-		
 	}
 
 	@Override
 	public void windowOpened(WindowEvent e) {
-		
 	}
 	
 	

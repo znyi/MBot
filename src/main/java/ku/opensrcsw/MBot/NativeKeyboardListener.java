@@ -11,11 +11,9 @@ import org.jnativehook.keyboard.NativeKeyListener;
 public class NativeKeyboardListener implements NativeKeyListener {
 
 	UI frame;
-	static String path; //need some clean up afterwards, we dont need this since we already have the frame (the frame contains the file path)
 	
-	public NativeKeyboardListener(UI frame, String filepath) {
+	public NativeKeyboardListener(UI frame) {
 		this.frame = frame;
-		NativeKeyboardListener.path = filepath;
 	}
 	
 	@Override
@@ -38,7 +36,7 @@ public class NativeKeyboardListener implements NativeKeyListener {
 		} else {
 			BufferedWriter out;
 			try {
-				out = new BufferedWriter(new FileWriter(path, true));
+				out = new BufferedWriter(new FileWriter(frame.filepath, true));
 				out.write("key press "+e.getKeyCode()+" "+NativeKeyEvent.getKeyText(e.getKeyCode())+"\n");
 				out.close();
 			} catch (IOException e1) {
@@ -51,7 +49,7 @@ public class NativeKeyboardListener implements NativeKeyListener {
 	public void nativeKeyReleased(NativeKeyEvent e) {
 		BufferedWriter out;
 		try {
-			out = new BufferedWriter(new FileWriter(path, true));
+			out = new BufferedWriter(new FileWriter(frame.filepath, true));
 			out.write("key release "+e.getKeyCode()+" "+NativeKeyEvent.getKeyText(e.getKeyCode())+"\n");
 			out.close();
 		} catch (IOException e1) {
