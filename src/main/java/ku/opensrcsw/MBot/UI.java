@@ -32,6 +32,8 @@ import javax.swing.event.ChangeListener;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.dispatcher.SwingDispatchService;
+import org.jnativehook.keyboard.NativeKeyEvent;
+import org.jnativehook.keyboard.NativeKeyListener;
 
 public class UI extends JFrame implements WindowListener{
 	
@@ -42,6 +44,8 @@ public class UI extends JFrame implements WindowListener{
 	NativeMouseListener mouseListener;
 	NativeKeyboardListener keyboardListener;
 	NativeWheelListener wheelListener;
+	
+	NativeKeyListener outerKeyListener;
 	
 	EventPlayer player;
 	
@@ -123,10 +127,83 @@ public class UI extends JFrame implements WindowListener{
 		keyboardListener = new NativeKeyboardListener(this, filepath);
 		wheelListener = new NativeWheelListener(this, filepath);
 		
-		GlobalScreen.addNativeMouseListener(mouseListener);
-		GlobalScreen.addNativeMouseMotionListener(mouseListener);
-		GlobalScreen.addNativeKeyListener(keyboardListener);
-		GlobalScreen.addNativeMouseWheelListener(wheelListener);
+		outerKeyListener = new NativeKeyListener() {
+
+			@Override
+			public void nativeKeyTyped(NativeKeyEvent e) {
+			}
+
+			@Override
+			public void nativeKeyPressed(NativeKeyEvent e) {
+				if(e.getKeyCode() == NativeKeyEvent.VC_F1) {
+					//start recording
+					isRec = true;
+					recBtn.setText(endRec);
+					playBtn.setEnabled(false);
+					stopBtn.setEnabled(false);
+					
+					//filename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+					/* needed if saving new file is done
+					filename = "output";
+					filepath = "src/main/resources/" + frame.filename + ".txt";
+					*/
+					
+					File file = new File(filepath);
+					try {
+						boolean result = Files.deleteIfExists(file.toPath()); 
+						if(GlobalScreen.isNativeHookRegistered()) {
+							GlobalScreen.removeNativeKeyListener(outerKeyListener);
+						} else {
+							GlobalScreen.registerNativeHook();
+						}
+						GlobalScreen.addNativeMouseListener(mouseListener);
+						GlobalScreen.addNativeMouseMotionListener(mouseListener);
+						GlobalScreen.addNativeKeyListener(keyboardListener);
+						GlobalScreen.addNativeMouseWheelListener(wheelListener);
+						
+						//output is generated through appending repeatedly until closing of file 
+						//need to delete existing output file to make it appears like the program is overwriting the output file
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					} catch (NativeHookException e1) {
+						e1.printStackTrace();
+					}
+					
+					/* needed if saving new file is done
+					NativeMouseListener.path = filepath;
+					NativeKeyboardListener.path = filepath;
+					NativeWheelListener.path = filepath;
+					*/
+					
+				} else if (e.getKeyCode() == NativeKeyEvent.VC_F3) { //start playing
+					player = new EventPlayer(UI.this,filepath);
+					isPlay = true;               
+					playBtn.setText(pause);
+					stopBtn.setEnabled(true);    
+					recBtn.setEnabled(false);    
+					isStop = false;              
+					player.play((Integer)numSpinner.getValue());
+				} else if (e.getKeyCode() == NativeKeyEvent.VC_F4) { //pause
+					isPlay = false;
+					playBtn.setText(play);
+					stopBtn.setEnabled(true);
+					recBtn.setEnabled(false);
+				} else if (e.getKeyCode() == NativeKeyEvent.VC_ESCAPE) { //end playing
+					isStop = true;
+					isPlay = false;
+					playBtn.setText(play);
+					stopBtn.setEnabled(false);
+					recBtn.setEnabled(true);
+				} 
+			}
+
+			@Override
+			public void nativeKeyReleased(NativeKeyEvent e) {
+			}
+			
+		};
+		
+		GlobalScreen.addNativeKeyListener(outerKeyListener);
 
 		try {
 			GlobalScreen.registerNativeHook();
@@ -160,7 +237,8 @@ public class UI extends JFrame implements WindowListener{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				//probably not reachable because the mouse itself is moving at the time. 
+				//it is difficult to take control over the mouse hitting F3 or F4, thus no code is executed
 			}
 			
 		});

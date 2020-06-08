@@ -1,5 +1,6 @@
 package ku.opensrcsw.MBot;
 
+import java.awt.MouseInfo;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class NativeMouseListener implements NativeMouseInputListener, NativeMous
 		BufferedWriter out;
 		try {
 			out = new BufferedWriter(new FileWriter(path, true));
-			out.write("move " + e.getX() + " " + e.getY()+"\n");
+			out.write("move " + MouseInfo.getPointerInfo().getLocation().x + " " + MouseInfo.getPointerInfo().getLocation().x+"\n");
 			out.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
