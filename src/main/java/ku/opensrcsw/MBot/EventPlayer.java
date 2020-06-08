@@ -5,37 +5,47 @@ import java.awt.Robot;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
-public class EventPlayer {
+public class EventPlayer implements Runnable {
 
+	UI frame;
 	String path;
 	Robot bot;
-
-	public EventPlayer(String path) {
+	Integer repetition;
+	
+	public EventPlayer(UI frame, String path) {
+		this.frame = frame;
 		this.path = path;
-		try {
-			bot = new Robot();
-		} catch (AWTException e) {
-			e.printStackTrace();
-		}
 	}
 	
-	public void play(Boolean isPlay, Boolean isEndless, Integer repetition, Boolean isStop) {
+	public void play(Integer num) {
+		repetition = num;
+		Thread t = new Thread(this);
+		t.start();
+		//this.run();
+	}
+
+	@Override
+	public void run() {
 		try {
-			if(isEndless) repetition = 1;
+			bot = new Robot();
+			bot.setAutoDelay(50);
+			bot.setAutoWaitForIdle(true);
+			if(frame.isEndless) repetition = 1;
 			for(int i = 0; i < repetition; i++) {
-				BufferedReader reader = Files.newBufferedReader(Paths.get(path));
-				while(isEndless) {
-					if(isStop) {
+				//BufferedReader reader = Files.newBufferedReader(Paths.get(path));
+				BufferedReader reader;
+				do {
+					reader = new BufferedReader(new FileReader(path));
+					if(frame.isStop) {
 						if(reader!=null) reader.close();
 						return;
 					}
 					String line = reader.readLine();
 					while (line != null) {
-						if(isPlay) {
+						if(frame.isPlay) {
 							String[] command = line.split(" ");
 			            	switch (command[0]) {
 			            	case "mouse":
@@ -51,7 +61,7 @@ public class EventPlayer {
 			            	}
 			            	case "key":
 			            	{
-			            		int keycode = Integer.parseInt(command[1]);
+			            		int keycode = Integer.parseInt(command[2]);
 			            		if(command[1].equals("press")) {
 			            			bot.keyPress(keycode);
 			            		} 
@@ -76,18 +86,26 @@ public class EventPlayer {
 			            	}
 			                line = reader.readLine();
 						} else {
-							while(!isPlay) {
+							while(!frame.isPlay) {
 								// do nothing until isPlay == true again
 							}
 						}
 		            }
-				}
-				reader.close();
+					reader.close();
+				} while(frame.isEndless);
 			}
+			frame.isStop = true;
+			frame.isPlay = false;
+			frame.playBtn.setText(frame.play);
+			frame.stopBtn.setEnabled(false);
+			frame.recBtn.setEnabled(true);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (AWTException e) {
+			e.printStackTrace();
 		}
+		
 	}
 }

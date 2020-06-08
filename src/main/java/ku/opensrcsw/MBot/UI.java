@@ -10,17 +10,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -32,10 +33,16 @@ import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.dispatcher.SwingDispatchService;
 
-public class UI extends JFrame {
+public class UI extends JFrame implements WindowListener{
+	
+	String filename = "output";
+	String filepath = "src/main/resources/" + filename + ".txt";
+	
 
-	String filename;
-	String filepath;
+	NativeMouseListener mouseListener;
+	NativeKeyboardListener keyboardListener;
+	NativeWheelListener wheelListener;
+	
 	EventPlayer player;
 	
 	Container con;
@@ -51,13 +58,13 @@ public class UI extends JFrame {
 	boolean isPlay = false;
 	boolean isStop = true;
 
-	String startRec = "Start Recording";
-	String endRec = "End Recording";
-	String play = "Play";
-	String pause = "Pause";
+	String startRec = "Start Recording (F1)";
+	String endRec = "End Recording (F2)";
+	String play = "Play (F3)";
+	String pause = "Pause (F4)";
 	JButton recBtn = new JButton(isRec? endRec : startRec);
 	JButton playBtn = new JButton(isPlay? pause : play);
-	JButton stopBtn = new JButton("Stop");
+	JButton stopBtn = new JButton("Stop (esc)");
 	
 	JSpinner numSpinner = new JSpinner(new SpinnerNumberModel());
 	
@@ -66,8 +73,8 @@ public class UI extends JFrame {
 	
 	public UI() {
 		super();
-		filename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-		filepath = "src/main/resources/" + filename + ".txt";
+		//filename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+		//filepath = "src/main/resources/" + filename + ".txt";
 		GlobalScreen.setEventDispatcher(new SwingDispatchService());
 		this.initUI();
 	}
@@ -78,6 +85,7 @@ public class UI extends JFrame {
 		this.setSize(size);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
+		//this.setLocation(0, 0);
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.initComponents();
@@ -111,51 +119,27 @@ public class UI extends JFrame {
 	}
 	
 	private void initListener() {
-		NativeMouseListener mouseListener = new NativeMouseListener(this, filepath);
-		NativeKeyboardListener keyboardListener = new NativeKeyboardListener(this, filepath);
-		NativeWheelListener wheelListener = new NativeWheelListener(this, filepath);
+		mouseListener = new NativeMouseListener(this, filepath);
+		keyboardListener = new NativeKeyboardListener(this, filepath);
+		wheelListener = new NativeWheelListener(this, filepath);
 		
 		GlobalScreen.addNativeMouseListener(mouseListener);
 		GlobalScreen.addNativeMouseMotionListener(mouseListener);
 		GlobalScreen.addNativeKeyListener(keyboardListener);
 		GlobalScreen.addNativeMouseWheelListener(wheelListener);
+
+		try {
+			GlobalScreen.registerNativeHook();
+		} catch (NativeHookException e2) {
+			e2.printStackTrace();
+		}
 		
 		recBtn.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				isRec = !isRec;
-				if(isRec) {
-					recBtn.setText(endRec);
-					playBtn.setEnabled(false);
-					stopBtn.setEnabled(false);
-					//filename = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-					filename = "output";
-					filepath = "src/main/resources/" + filename + ".txt";
-					File file = new File(filepath);
-					try {
-						boolean result = Files.deleteIfExists(file.toPath());
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					try {
-						NativeMouseListener.path = filepath;
-						NativeKeyboardListener.path = filepath;
-						NativeWheelListener.path = filepath;
-						GlobalScreen.registerNativeHook();
-					} catch (NativeHookException nhe) {
-						nhe.printStackTrace();
-					}
-				} else {
-					recBtn.setText(startRec);
-					playBtn.setEnabled(true);
-					stopBtn.setEnabled(false);
-					try {
-						GlobalScreen.unregisterNativeHook();
-					} catch (NativeHookException nhe) {
-						nhe.printStackTrace();
-					}
+				if (!isRec) {
+					JOptionPane.showMessageDialog(UI.this, "Press F1 to start recording.", "Info", JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 			
@@ -165,18 +149,8 @@ public class UI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				isPlay = !isPlay;
-				if(isPlay) {
-					playBtn.setText(pause);
-					stopBtn.setEnabled(true);
-					recBtn.setEnabled(false);
-					isStop = false;
-					player = new EventPlayer(filepath);
-					player.play(isPlay, isEndless, (Integer)numSpinner.getValue(), isStop);
-				} else {
-					playBtn.setText(play);
-					stopBtn.setEnabled(true);
-					recBtn.setEnabled(false);
+				if (!isPlay) {
+					JOptionPane.showMessageDialog(UI.this, "Press F3 to start playing the macro.", "Info", JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 			
@@ -186,11 +160,7 @@ public class UI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				isPlay = !isPlay;
-				isStop = true;
-				playBtn.setText(play);
-				stopBtn.setEnabled(false);
-				recBtn.setEnabled(true);
+				
 			}
 			
 		});
@@ -200,7 +170,7 @@ public class UI extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				if(numSpinner.getValue().equals(0)) {
-					numSpinner.setValue(1);
+					numSpinner.setValue(1); // set any value larger than 0 to keep the loop going in EventPlayer
 				}
 			}
 			
@@ -218,6 +188,50 @@ public class UI extends JFrame {
 			}
 			
 		});
+		
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+		
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		GlobalScreen.removeNativeMouseListener(mouseListener);
+		GlobalScreen.removeNativeMouseMotionListener(mouseListener);
+		GlobalScreen.removeNativeKeyListener(keyboardListener);
+		GlobalScreen.removeNativeMouseWheelListener(wheelListener);
+		try {
+			GlobalScreen.unregisterNativeHook();
+		} catch (NativeHookException nhe) {
+			nhe.printStackTrace();
+		}
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+		
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+		
 	}
 	
 	
