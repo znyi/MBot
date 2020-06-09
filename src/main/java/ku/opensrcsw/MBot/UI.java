@@ -14,6 +14,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
@@ -23,6 +25,7 @@ import java.nio.file.Files;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -111,6 +114,7 @@ public class UI extends JFrame implements WindowListener{
 		titleLabel.setFont(new Font("Sans", Font.BOLD, 50));
 		titleBar.setBorder(new EmptyBorder(5, 30, 5, 30));
 		titleBar.setBackground(new Color(31, 51, 71));
+		
 		titleBar.add(logoLabel);
 		titleBar.add(titleLabel);
 		
@@ -296,6 +300,45 @@ public class UI extends JFrame implements WindowListener{
 			
 		});
 		
+		logoLabel.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				String helpStr = "\n"
+						+ "1. Press F1 to start recording a macro.\n"
+						+ "2. Press F2 to end your recording.\n"
+						+ "3. Press F3 to start or continue playing your macro.\n"
+						+ "4. Press F4 to pause an ongoing macro.\n"
+						+ "5. Press Esc to stop/terminate a macro.\n"
+						+ "6. Input the number of times you wish the macro to repeat in the number box below.            \n"
+						+ "7. Select the checkbox if you wish to play the macro non-stop.\n"
+						+ "\n"
+						+ "Note: When you record a new macro, the new macro will overwrite the older one.\n"
+						+ "\n";
+				JOptionPane.showMessageDialog(UI.this, helpStr, "MBot Guidelines", JOptionPane.INFORMATION_MESSAGE);
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				logoLabel.setToolTipText("Click me for some help!"); 
+				logoLabel.getToolTipText(e);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				logoLabel.setToolTipText(null);
+				UI.this.repaint();
+			}
+			
+		});
 	}
 
 	@Override
