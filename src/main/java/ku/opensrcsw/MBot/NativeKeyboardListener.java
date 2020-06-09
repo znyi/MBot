@@ -1,5 +1,6 @@
 package ku.opensrcsw.MBot;
 
+import java.awt.event.KeyEvent;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,8 +8,9 @@ import java.io.IOException;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
+import org.jnativehook.keyboard.SwingKeyAdapter;
 
-public class NativeKeyboardListener implements NativeKeyListener {
+public class NativeKeyboardListener extends SwingKeyAdapter implements NativeKeyListener {
 
 	UI frame;
 	
@@ -37,7 +39,11 @@ public class NativeKeyboardListener implements NativeKeyListener {
 			BufferedWriter out;
 			try {
 				out = new BufferedWriter(new FileWriter(frame.filepath, true));
-				out.write("key press "+e.getKeyCode()+" "+NativeKeyEvent.getKeyText(e.getKeyCode())+"\n");
+				//the key codes of NativeKeyEvent and KeyEvent are different
+				//since Robot only recognizes KeyEvent, we call getJavaKeyEvent() to get corresponding KeyEvent of the native event
+				out.write("key press "+this.getJavaKeyEvent(e).getKeyCode()+" "+KeyEvent.getKeyText(this.getJavaKeyEvent(e).getKeyCode())+"\n");
+				System.out.println(e.getKeyCode()+" "+NativeKeyEvent.getKeyText(e.getKeyCode()));
+				out.write("delay "+Long.toUnsignedString(TimeTracker.getTime())+"\n");
 				out.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -47,14 +53,25 @@ public class NativeKeyboardListener implements NativeKeyListener {
 
 	@Override
 	public void nativeKeyReleased(NativeKeyEvent e) {
+		if (e.getKeyCode() == NativeKeyEvent.VC_F1) { //end recording
+			return; // do nothing
+		}
 		BufferedWriter out;
 		try {
 			out = new BufferedWriter(new FileWriter(frame.filepath, true));
-			out.write("key release "+e.getKeyCode()+" "+NativeKeyEvent.getKeyText(e.getKeyCode())+"\n");
+			out.write("key release "+this.getJavaKeyEvent(e).getKeyCode()+" "+KeyEvent.getKeyText(this.getJavaKeyEvent(e).getKeyCode())+"\n");
+			out.write("delay "+Long.toUnsignedString(TimeTracker.getTime())+"\n");
 			out.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 	}
 
+	@Override
+	protected KeyEvent getJavaKeyEvent(NativeKeyEvent nativeEvent) {
+		// TODO Auto-generated method stub
+		return super.getJavaKeyEvent(nativeEvent);
+	}
+
+	
 }

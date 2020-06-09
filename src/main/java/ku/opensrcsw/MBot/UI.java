@@ -124,7 +124,6 @@ public class UI extends JFrame implements WindowListener{
 		mouseListener = new NativeMouseListener(this);
 		keyboardListener = new NativeKeyboardListener(this);
 		wheelListener = new NativeWheelListener(this);
-		
 		outerKeyListener = new NativeKeyListener() {
 
 			@Override
@@ -150,6 +149,8 @@ public class UI extends JFrame implements WindowListener{
 						} else {
 							GlobalScreen.registerNativeHook();
 						}
+						
+						TimeTracker.initTime();
 						//change native listeners for recording
 						GlobalScreen.addNativeMouseListener(mouseListener);
 						GlobalScreen.addNativeMouseMotionListener(mouseListener);
@@ -166,7 +167,7 @@ public class UI extends JFrame implements WindowListener{
 					}
 					
 				} else if (e.getKeyCode() == NativeKeyEvent.VC_F3) { //start playing
-					player = new EventPlayer(UI.this,filepath);
+					player = new EventPlayer(UI.this);
 					isPlay = true;               
 					playBtn.setText(pause);
 					stopBtn.setEnabled(true);    

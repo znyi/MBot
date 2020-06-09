@@ -2,6 +2,7 @@ package ku.opensrcsw.MBot;
 
 import java.awt.AWTException;
 import java.awt.Robot;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -12,21 +13,18 @@ import javax.swing.JOptionPane;
 public class EventPlayer implements Runnable {
 
 	UI frame;
-	String path;
 	Robot bot;
 	Integer repetition;
 	static Integer count;
 	
-	public EventPlayer(UI frame, String path) {
+	public EventPlayer(UI frame) {
 		this.frame = frame;
-		this.path = path;
 	}
 	
 	public void play() {
 		repetition = (Integer)frame.numSpinner.getValue();
 		Thread t = new Thread(this);
 		t.start();
-		//this.run();
 	}
 
 	@Override
@@ -41,7 +39,7 @@ public class EventPlayer implements Runnable {
 				BufferedReader reader;
 				do {
 					try {
-						reader = new BufferedReader(new FileReader(path));
+						reader = new BufferedReader(new FileReader(frame.filepath));
 						if(frame.isStop) {
 							if(reader!=null) reader.close();
 							return;
@@ -54,6 +52,11 @@ public class EventPlayer implements Runnable {
 				            	case "mouse":
 				            	{
 				            		int button = Integer.parseInt(command[2]);
+				            		
+				            		// button 1:left, button 2: right, button 3: middle, button 4 and 5: side 
+				            		if(button == 2) button = 3;
+				            		else if (button == 3) button = 2;
+				            		
 				            		if(command[1].equals("press")) {
 				            			bot.mousePress(MouseEvent.getMaskForButton(button));
 				            		} 
@@ -66,9 +69,11 @@ public class EventPlayer implements Runnable {
 				            	{
 				            		int keycode = Integer.parseInt(command[2]);
 				            		if(command[1].equals("press")) {
+				            			System.out.println("press"+" "+keycode);
 				            			bot.keyPress(keycode);
 				            		} 
 				            		else if (command[1].equals("release")) {
+				            			System.out.println("release"+" "+keycode);
 				            			bot.keyRelease(keycode);
 				            		}
 				            		break;
@@ -87,6 +92,11 @@ public class EventPlayer implements Runnable {
 				            		//System.out.println(MouseInfo.getPointerInfo().getLocation().y);
 				            		bot.mouseMove(x, y);
 				            		break;
+				            	}
+				            	case "delay":
+				            	{
+				            		int delay = Integer.parseInt(command[1]);
+				            		bot.delay(delay);
 				            	}
 				            	}
 				                line = reader.readLine();

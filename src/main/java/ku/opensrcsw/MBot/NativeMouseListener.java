@@ -28,6 +28,7 @@ public class NativeMouseListener implements NativeMouseInputListener, NativeMous
 		try {
 			out = new BufferedWriter(new FileWriter(frame.filepath, true));
 			out.write("mouse press "+e.getButton()+"\n");
+			out.write("delay "+Long.toUnsignedString(TimeTracker.getTime())+"\n");
 			out.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -40,6 +41,7 @@ public class NativeMouseListener implements NativeMouseInputListener, NativeMous
 		try {
 			out = new BufferedWriter(new FileWriter(frame.filepath, true));
 			out.write("mouse release "+e.getButton()+"\n");
+			out.write("delay "+Long.toUnsignedString(TimeTracker.getTime())+"\n");
 			out.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -52,6 +54,7 @@ public class NativeMouseListener implements NativeMouseInputListener, NativeMous
 		try {
 			out = new BufferedWriter(new FileWriter(frame.filepath, true));
 			out.write("move " + MouseInfo.getPointerInfo().getLocation().x + " " + MouseInfo.getPointerInfo().getLocation().y+"\n");
+			out.write("delay "+Long.toUnsignedString(TimeTracker.getTime())+"\n");
 			out.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();

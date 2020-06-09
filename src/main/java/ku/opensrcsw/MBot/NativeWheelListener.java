@@ -21,6 +21,7 @@ public class NativeWheelListener implements NativeMouseWheelListener {
 		try {
 			out = new BufferedWriter(new FileWriter(frame.filepath, true));
 			out.write("wheel " + e.getWheelRotation()+"\n");
+			out.write("delay "+Long.toUnsignedString(TimeTracker.getTime())+"\n");
 			out.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
