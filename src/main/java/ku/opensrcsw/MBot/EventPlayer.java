@@ -33,9 +33,10 @@ public class EventPlayer implements Runnable {
 			bot = new Robot();
 			bot.setAutoDelay(20);
 			bot.setAutoWaitForIdle(true);
-			if(frame.isEndless) repetition = 1;
-			for(int i = 0; i < repetition; i++) {
-				System.out.println("starting loop "+i);
+			frame.isStop = false;
+			count = 0;
+			for(; count < repetition; count++) {
+				System.out.println("starting loop "+count);
 				BufferedReader reader;
 				do {
 					try {
@@ -52,11 +53,6 @@ public class EventPlayer implements Runnable {
 				            	case "mouse":
 				            	{
 				            		int button = Integer.parseInt(command[2]);
-				            		
-				            		// button 1:left, button 2: right, button 3: middle, button 4 and 5: side 
-				            		if(button == 2) button = 3;
-				            		else if (button == 3) button = 2;
-				            		
 				            		if(command[1].equals("press")) {
 				            			bot.mousePress(MouseEvent.getMaskForButton(button));
 				            		} 
@@ -70,11 +66,11 @@ public class EventPlayer implements Runnable {
 				            		int keycode = Integer.parseInt(command[2]);
 				            		if(command[1].equals("press")) {
 				            			System.out.println("press"+" "+keycode);
-				            			bot.keyPress(keycode);
+				            			bot.keyPress(keycode);//test
 				            		} 
 				            		else if (command[1].equals("release")) {
 				            			System.out.println("release"+" "+keycode);
-				            			bot.keyRelease(keycode);
+				            			bot.keyRelease(keycode);//
 				            		}
 				            		break;
 				            	}
@@ -100,19 +96,17 @@ public class EventPlayer implements Runnable {
 				            	}
 				            	}
 				                line = reader.readLine();
-				                while(!frame.isPlay) { //pause in the middle of the macro run
-									// do nothing until isPlay == true again
-								}
+							} else {
+								bot.delay(1); //pause
 							}
 			            }
 						reader.close();
 					} catch (IOException e) {
-						JOptionPane.showMessageDialog(frame, "No macro to be played.\nPlease record one.", "File Not Found", JOptionPane.WARNING_MESSAGE);
 						e.printStackTrace();
 					}
 					
 				} while(frame.isEndless);
-				System.out.println("ending loop "+i);
+				System.out.println("ending loop "+count);
 			}
 			frame.isStop = true;
 			frame.isPlay = false;

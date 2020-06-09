@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -65,6 +66,7 @@ public class UI extends JFrame implements WindowListener{
 	String startRec = "Start Recording (F1)";
 	String endRec = "End Recording (F2)";
 	String play = "Play (F3)";
+	String cont = "Continue (F3)";
 	String pause = "Pause (F4)";
 	JButton recBtn = new JButton(isRec? endRec : startRec);
 	JButton playBtn = new JButton(isPlay? pause : play);
@@ -75,6 +77,8 @@ public class UI extends JFrame implements WindowListener{
 	JCheckBox endlessCheck = new JCheckBox("Run for an eternity");
 	boolean isEndless = false;
 	
+	Toolkit kit;
+	
 	public UI() {
 		super();
 		GlobalScreen.setEventDispatcher(new SwingDispatchService());
@@ -83,6 +87,8 @@ public class UI extends JFrame implements WindowListener{
 	
 	private void initUI() {
 		con = this.getContentPane();
+		kit = con.getToolkit();
+		this.setIconImage(kit.getImage("src/main/resources/icons8-music-robot-48.png"));
 		this.setTitle("MBot");
 		this.setSize(size);
 		this.setResizable(false);
@@ -150,7 +156,7 @@ public class UI extends JFrame implements WindowListener{
 							GlobalScreen.registerNativeHook();
 						}
 						
-						TimeTracker.initTime();
+						TimeTracker.initTime(); //set starting time
 						//change native listeners for recording
 						GlobalScreen.addNativeMouseListener(mouseListener);
 						GlobalScreen.addNativeMouseMotionListener(mouseListener);
@@ -166,19 +172,28 @@ public class UI extends JFrame implements WindowListener{
 						e1.printStackTrace();
 					}
 					
-				} else if (e.getKeyCode() == NativeKeyEvent.VC_F3) { //start playing
-					player = new EventPlayer(UI.this);
+				} else if (e.getKeyCode() == NativeKeyEvent.VC_F3) { //start playing or continue playing
+					File file = new File(filepath);
+					if(!file.exists()) {
+						JOptionPane.showMessageDialog(UI.this, "No macro to be played.\nPlease record one.", "File Not Found", JOptionPane.WARNING_MESSAGE);
+						return;
+					}
 					isPlay = true;               
 					playBtn.setText(pause);
 					stopBtn.setEnabled(true);    
 					recBtn.setEnabled(false);    
-					isStop = false;              
-					player.play();
+					if(isStop) {
+						player = new EventPlayer(UI.this);
+						player.play();	
+					} else {
+						System.out.println("continue loop "+EventPlayer.count);
+					}
 				} else if (e.getKeyCode() == NativeKeyEvent.VC_F4) { //pause
 					isPlay = false;
-					playBtn.setText(play);
+					playBtn.setText(cont);
 					stopBtn.setEnabled(true);
 					recBtn.setEnabled(false);
+					System.out.println("pause at loop "+EventPlayer.count);
 				} else if (e.getKeyCode() == NativeKeyEvent.VC_ESCAPE) { //end playing
 					isStop = true;
 					isPlay = false;
@@ -228,8 +243,9 @@ public class UI extends JFrame implements WindowListener{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//probably not reachable because the mouse itself is moving at the time. 
-				//it is difficult to take control over the mouse hitting F3 or F4, thus no code is executed
+				if (!isStop) {
+					JOptionPane.showMessageDialog(UI.this, "Press esc to stop the macro.", "Info", JOptionPane.INFORMATION_MESSAGE);
+				}
 			}
 			
 		});
@@ -238,7 +254,8 @@ public class UI extends JFrame implements WindowListener{
 
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				if(numSpinner.getValue().equals(0)) {
+				if((Integer)(numSpinner.getValue()) <= 0) {
+					//JOptionPane.showMessageDialog(UI.this, "The number box must not contain\nnegative value. Reset as 1.", "Info", JOptionPane.INFORMATION_MESSAGE);
 					numSpinner.setValue(1); // set any value larger than 0 to keep the loop going in EventPlayer
 				}
 			}

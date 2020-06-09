@@ -41,8 +41,11 @@ public class NativeKeyboardListener extends SwingKeyAdapter implements NativeKey
 				out = new BufferedWriter(new FileWriter(frame.filepath, true));
 				//the key codes of NativeKeyEvent and KeyEvent are different
 				//since Robot only recognizes KeyEvent, we call getJavaKeyEvent() to get corresponding KeyEvent of the native event
-				out.write("key press "+this.getJavaKeyEvent(e).getKeyCode()+" "+KeyEvent.getKeyText(this.getJavaKeyEvent(e).getKeyCode())+"\n");
-				System.out.println(e.getKeyCode()+" "+NativeKeyEvent.getKeyText(e.getKeyCode()));
+				//note : right side alt cannot toggle kor-eng keyboard, right side ctrl cannot toggle hanja keyboard
+				int keycode = this.getJavaKeyEvent(e).getKeyCode();
+        		if(keycode == 157) keycode = KeyEvent.VK_WINDOWS;
+        		if(e.getKeyCode() == 0xe36) keycode = KeyEvent.VK_SHIFT; //right side shift
+				out.write("key press "+keycode+" "+KeyEvent.getKeyText(this.getJavaKeyEvent(e).getKeyCode())+"\n");
 				out.write("delay "+Long.toUnsignedString(TimeTracker.getTime())+"\n");
 				out.close();
 			} catch (IOException e1) {
@@ -59,7 +62,10 @@ public class NativeKeyboardListener extends SwingKeyAdapter implements NativeKey
 		BufferedWriter out;
 		try {
 			out = new BufferedWriter(new FileWriter(frame.filepath, true));
-			out.write("key release "+this.getJavaKeyEvent(e).getKeyCode()+" "+KeyEvent.getKeyText(this.getJavaKeyEvent(e).getKeyCode())+"\n");
+			int keycode = this.getJavaKeyEvent(e).getKeyCode();
+    		if(keycode == 157) keycode = KeyEvent.VK_WINDOWS;
+    		if(e.getKeyCode() == 0xe36) keycode = KeyEvent.VK_SHIFT; //right side shift
+			out.write("key release "+keycode+" "+KeyEvent.getKeyText(this.getJavaKeyEvent(e).getKeyCode())+"\n");
 			out.write("delay "+Long.toUnsignedString(TimeTracker.getTime())+"\n");
 			out.close();
 		} catch (IOException e1) {
@@ -69,7 +75,6 @@ public class NativeKeyboardListener extends SwingKeyAdapter implements NativeKey
 
 	@Override
 	protected KeyEvent getJavaKeyEvent(NativeKeyEvent nativeEvent) {
-		// TODO Auto-generated method stub
 		return super.getJavaKeyEvent(nativeEvent);
 	}
 
