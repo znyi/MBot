@@ -6,9 +6,12 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
@@ -17,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
@@ -51,9 +55,11 @@ public class UI extends JFrame implements WindowListener{
 	EventPlayer player;
 	
 	Container con;
-	Dimension size = new Dimension(900, 600);
+	
 	JPanel titleBar = new JPanel();
-	JLabel title = new JLabel("MBot");
+	JLabel titleLabel = new JLabel(" MBot");
+	ImageIcon logoIcon = new ImageIcon("src/main/resources/icons8-music-robot-96.png");
+	JLabel logoLabel = new JLabel(logoIcon);
 	
 	JPanel buttonBar = new JPanel();
 
@@ -90,10 +96,10 @@ public class UI extends JFrame implements WindowListener{
 		kit = con.getToolkit();
 		this.setIconImage(kit.getImage("src/main/resources/icons8-music-robot-48.png"));
 		this.setTitle("MBot");
-		this.setSize(size);
-		this.setResizable(false);
+		this.setMinimumSize(new Dimension(500, 650));
+		this.setSize(new Dimension(500,550));
+		this.setResizable(true);
 		this.setLocationRelativeTo(null);
-		//this.setLocation(0, 0);
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.initComponents();
@@ -102,12 +108,14 @@ public class UI extends JFrame implements WindowListener{
 	private void initComponents() {
 		con.add(titleBar, BorderLayout.NORTH);
 		
-		title.setFont(new Font("Sans", Font.BOLD, 50));
-		titleBar.setBorder(new EmptyBorder(10, 0, 10, 0));
+		titleLabel.setFont(new Font("Sans", Font.BOLD, 50));
+		titleBar.setBorder(new EmptyBorder(5, 30, 5, 30));
 		titleBar.setBackground(new Color(31, 51, 71));
-		titleBar.add(title);
+		titleBar.add(logoLabel);
+		titleBar.add(titleLabel);
 		
-		buttonBar.setBorder(new EmptyBorder(15, 0, 15, 0));
+		buttonBar.setLayout(new GridLayout(5,1,10,10));
+		buttonBar.setBorder(new EmptyBorder(35, 65, 30 , 65));
 		buttonBar.add(recBtn);
 		buttonBar.add(playBtn);
 		buttonBar.add(stopBtn);
@@ -271,6 +279,19 @@ public class UI extends JFrame implements WindowListener{
 				} else {
 					isEndless = false;
 				}
+			}
+			
+		});
+		
+		this.addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				Dimension curSize = UI.this.getSize();
+				Dimension minSize = UI.this.getMinimumSize();
+	            if(curSize.width >= minSize.width && curSize.height >= minSize.height) {// limit the size of the frame
+	            	super.componentResized(e);
+	            }
 			}
 			
 		});

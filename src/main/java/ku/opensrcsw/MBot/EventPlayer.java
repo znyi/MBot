@@ -2,13 +2,10 @@ package ku.opensrcsw.MBot;
 
 import java.awt.AWTException;
 import java.awt.Robot;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
-import javax.swing.JOptionPane;
 
 public class EventPlayer implements Runnable {
 
